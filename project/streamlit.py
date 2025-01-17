@@ -191,7 +191,7 @@ if uploaded_file is not None:
 
                     # Создаем графики и сохраняем их как изображения
                     time_series_parts = split_time_series(first_minute_data, interval=6)
-                    image_paths = save_time_series_to_pdf(time_series_parts, channel)
+                    image_paths = save_time_series_to_pdf(time_series_parts, channel, sampling_rate=sampling_rate) 
 
                     # Вставляем изображения в PDF
                     for img_path in image_paths:

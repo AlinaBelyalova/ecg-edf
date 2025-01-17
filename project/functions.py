@@ -241,7 +241,7 @@ def plot_double_ecg_cycle(ecg_signal, r_peaks, sampling_rate):
         print(f"Ошибка при выделении кардиоциклов: {e}")
         return None
     
-def plot_rr_intervals(ax, part, channel_name, y_offset):
+def plot_rr_intervals(ax, part, channel_name, sampling_rate, y_offset):
     """
     Рисует RR-интервалы для части временного ряда.
     """
@@ -270,7 +270,7 @@ def plot_rr_intervals(ax, part, channel_name, y_offset):
         ax.text(mid_x, y_offset + 0.05, f'{rr_intervals[i]:.0f} ms', 
                 color=color, fontsize=10, ha='center', va='bottom') 
     
-def save_time_series_to_pdf(time_series_parts, channel_name, parts_per_page=10):
+def save_time_series_to_pdf(time_series_parts, channel_name,sampling_rate, parts_per_page=10):
     """
     Сохраняет части временного ряда в изображения и возвращает список путей к ним.
 
@@ -334,7 +334,7 @@ def save_time_series_to_pdf(time_series_parts, channel_name, parts_per_page=10):
             ax.text(x, -2.2, time_label, fontsize=8, ha='center', va='top')  # Подпись ниже графика
 
         y_offset = part[f"{channel_name}_cleaned"].min() - 0.2  # Смещение для стрелок и подписей
-        plot_rr_intervals(ax, part, channel_name, y_offset)
+        plot_rr_intervals(ax, part, channel_name,sampling_rate, y_offset)
 
         # Добавление подписей на ось Y
         ax.set_ylabel("Amplitude (mV)", fontsize=10)
