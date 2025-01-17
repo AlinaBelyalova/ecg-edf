@@ -254,10 +254,12 @@ def plot_rr_intervals(ax, part, channel_name, sampling_rate, y_offset):
         x_end = r_peak_timestamps.iloc[i + 1]
         
         # Проверка на нормальные RR интервалы
-        if 600 <= rr_intervals[i] <= 1000:
-            color = 'blue'
-        else:
+        if 1000 <= rr_intervals[i] <= 1200:
+            color = 'darkorange'
+        elif 600 < rr_intervals[i] > 1200:
             color = 'red'
+        else:
+            color = 'blue' 
         
         ax.annotate(
             '', 

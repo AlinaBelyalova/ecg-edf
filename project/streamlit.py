@@ -98,6 +98,15 @@ if uploaded_file is not None:
         st.subheader("Выбор каналов")
         selected_channels = st.multiselect("Выберите один или несколько каналов для создания отчета", available_channels)
 
+        # Добавляем фильтр
+        st.subheader("Выбор фильтра")
+        filter_options = {
+            "Butterworth (1-40 Hz)": "butterworth",
+            "Elgendi": "elgendi",
+            # добавить еще
+        }
+        selected_filter = st.selectbox("Выберите фильтр", list(filter_options.keys()))
+
         if len(selected_channels) > 0 and st.button("Сформировать PDF отчет"):
             st.write(f"Выбраны каналы: {', '.join(selected_channels)}")
 
@@ -151,8 +160,19 @@ if uploaded_file is not None:
                     story.append(Paragraph(f"Канал: {channel}", styles["Heading2"]))
                     story.append(Spacer(1, 12))  # Отступ после заголовка
 
-                    # Обработка данных канала
-                    ecg_signal = nk.ecg_clean(first_minute_data[channel].astype(float), sampling_rate=sampling_rate)
+                    # Выбираем фильтр
+                    if filter_options[selected_filter] == "butterworth":
+                        ecg_signal = nk.signal_filter(first_minute_data[channel].astype(float), 
+                                                       sampling_rate=sampling_rate,
+                                                       lowcut=1,
+                                                       highcut=40,
+                                                       method='butterworth',
+                                                       order=2)
+                    elif filter_options[selected_filter] == "elgendi":
+                        ecg_signal = nk.ecg_clean(first_minute_data[channel].astype(float), 
+                                                   sampling_rate=sampling_rate, 
+                                                   method="elgendi2010")
+
                     first_minute_data[f"{channel}_cleaned"] = ecg_signal
 
                     r_info, r_peaks = nk.ecg_peaks(ecg_signal, sampling_rate=sampling_rate)
