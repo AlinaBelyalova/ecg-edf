@@ -59,6 +59,25 @@ if st.button("Подтвердить данные"):
 
 uploaded_file = st.file_uploader("Загрузите EDF файл", type=["edf"])
 
+#Добавление комментария для врача
+st.subheader("Добавить комментарий")
+comment = st.text_area("Введите комментарий врача", "")
+
+if 'comments' not in st.session_state:
+    st.session_state.comments = []
+
+if st.button("Добавить комментарий"):
+    if comment.strip():
+        st.session_state.comments.append(comment.strip())
+        st.success("Комментарий добавлен!")
+    else:
+        st.warning("Комментарий не может быть пустым.")
+
+if st.session_state.comments:
+    st.subheader("Текущие комментарии")
+    for i, comm in enumerate(st.session_state.comments, 1):
+        st.write(f"{i}. {comm}")
+
 if uploaded_file is not None:
     with tempfile.NamedTemporaryFile(delete=False) as tmpfile:
         tmpfile.write(uploaded_file.read())
@@ -109,6 +128,18 @@ if uploaded_file is not None:
                 )
                 story.append(Paragraph(patient_info_text, styles["Normal"]))
                 story.append(Spacer(1, 12))
+
+                # Добавляем комментарии
+                if st.session_state.comments:
+                    story.append(Paragraph("Комментарии врача:", styles["Heading2"]))
+                    for i, comm in enumerate(st.session_state.comments, 1):
+                        story.append(Paragraph(f"{i}. {comm}", styles["BodyText"]))
+                        story.append(Spacer(1, 6))
+                
+                filters_info = (f"Фильтр: Полосовой 1-40 Гц; 25 мм/с 10 мм/мВ")
+                story.append(Paragraph(filters_info, styles["BodyText"]))
+                story.append(Spacer(1,12))
+
 
                 all_channel_intervals = []
 
