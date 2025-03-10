@@ -41,6 +41,28 @@ def read_edf_to_dataframe(file_path):
     df["timestamp"] = idx
     f.close()
     return df
+# def read_edf_to_dataframe(file_path):
+#     f = pyedflib.EdfReader(file_path)
+#     n_signals = f.signals_in_file
+#     df = pd.DataFrame()
+    
+#     for i in range(n_signals):
+#         signal = f.readSignal(i)
+#         label = f.getLabel(i)
+        
+#         # Если хотите масштабировать только "ECG"-канал:
+#         if label.upper().startswith("ECG"):
+#             signal = signal / 1000.0
+        
+#         df[label] = signal
+
+#     start_datetime = f.getStartdatetime()
+#     periods = df.shape[0]
+#     freq_sec = pd.to_timedelta(1000 / f.getSampleFrequencies()[0], unit="ms")
+#     idx = pd.date_range(start=start_datetime, periods=periods, freq=freq_sec)
+#     df["timestamp"] = idx
+#     f.close()
+#     return df
 
 # Функция обрезки сигнала до одной минуты
 def clip_to_one_minute(df, start_time):
@@ -248,7 +270,8 @@ def plot_rr_intervals(ax, part, channel_name, sampling_rate, y_offset):
     # Находим R-пики
     r_peak_indices = part.index[part[f"{channel_name}_R_Peak_Class"] == 1]
     r_peak_timestamps = part.loc[r_peak_indices, 'timestamp']
-    rr_intervals = (np.diff(r_peak_indices) / 200) * 1000  # Перевод в мс
+    
+    rr_intervals = (np.diff(r_peak_indices) / sampling_rate) * 1000  # Перевод в мс
     for i in range(len(r_peak_indices) - 1):
         x_start = r_peak_timestamps.iloc[i]
         x_end = r_peak_timestamps.iloc[i + 1]
@@ -256,7 +279,7 @@ def plot_rr_intervals(ax, part, channel_name, sampling_rate, y_offset):
         # Проверка на нормальные RR интервалы
         if 1000 <= rr_intervals[i] <= 1200:
             color = 'darkorange'
-        elif 600 < rr_intervals[i] > 1200:
+        elif rr_intervals[i] < 600 or rr_intervals[i] > 1200:
             color = 'red'
         else:
             color = 'blue' 
